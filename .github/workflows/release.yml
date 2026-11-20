@@ -1,0 +1,94 @@
+name: Release
+
+# Every push to main: run CI, work out the next SemVer version from the
+# Conventional Commit messages since the last tag, stage it on npm, then tag
+# and create the GitHub Release. A maintainer makes the staged version live
+# with `npm stage approve` (2FA). Nothing is committed back to main: the tag
+# is the source of truth and package.json in the repo stays at 0.0.0.
+
+on:
+  push:
+    branches: [main]
+
+permissions: {}
+
+# One release at a time. A newer run replaces a queued one and picks up its
+# commits, so no version is skipped or published twice.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  version:
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.next.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # full history and tags
+          persist-credentials: false
+      - id: next
+        # Separate assignment so a script failure fails the step.
+        run: |
+          version=$(node scripts/operations/release-version.mjs next)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - if: steps.next.outputs.version == ''
+        run: echo "::notice::No feat, fix, perf or breaking change since the last release. Nothing to publish."
+
+  publish:
+    needs: version
+    if: needs.version.outputs.version != ''
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: write # create the tag and GitHub Release
+      id-token: write # npm trusted publishing (OIDC)
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false # no shared cache in a job that can publish
+      - run: npm install -g npm@11.21.0 # npm stage needs npm >= 11.19.1
+      - run: npm ci --ignore-scripts
+      - run: npm version "$VERSION" --no-git-tag-version
+      - run: npm run build
+      - name: Stage on npm
+        # npm view only sees approved versions. If a run staged but failed to
+        # tag, re-staging fails: create the v$VERSION release on this commit
+        # instead. If a later commit computes a version already published from
+        # another commit, fail rather than tag code that isn't what npm serves.
+        run: |
+          published=$(npm view "@nomba/node-sdk@$VERSION" gitHead 2>/dev/null || true)
+          if [ -z "$published" ]; then
+            npm stage publish
+            echo "::notice::@nomba/node-sdk@$VERSION is staged. Approve it with: npm stage list @nomba/node-sdk, then npm stage approve <stage-id>"
+          elif [ "$published" = "$GITHUB_SHA" ]; then
+            echo "::notice::@nomba/node-sdk@$VERSION is already on npm from this commit."
+          else
+            echo "::error::@nomba/node-sdk@$VERSION was published from $published but not tagged. Create the v$VERSION release on that commit, then re-run this workflow."
+            exit 1
+          fi
+        env:
+          # Only for the first publish: npm can't trust this workflow until the
+          # package exists. Delete the NPM_TOKEN secret once trusted publishing
+          # is set up; npm then publishes with OIDC.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Tag and create GitHub Release
+        run: gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

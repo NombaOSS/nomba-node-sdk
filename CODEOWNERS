@@ -1,0 +1,7 @@
+* @NombaOSS/node-sdk-maintainers
+
+.github/ @NombaOSS/maintainers
+CODEOWNERS @NombaOSS/maintainers
+.gitignore @NombaOSS/maintainers
+.gitattributes @NombaOSS/maintainers
+/scripts/operations/ @NombaOSS/maintainers

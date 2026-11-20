@@ -1,0 +1,43 @@
+{
+	"name": "@nomba/node-sdk",
+	"version": "0.0.0",
+	"description": "Node.js SDK for Nomba's APIs",
+	"license": "MIT",
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=22"
+	},
+	"scripts": {
+		"prebuild": "node scripts/generate-sdk-version.cjs",
+		"build": "tsc -p tsconfig.build.json",
+		"lint": "biome check .",
+		"pretest": "node scripts/generate-sdk-version.cjs",
+		"test": "vitest run",
+		"pretypecheck": "node scripts/generate-sdk-version.cjs",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.14",
+		"@types/node": "^22.20.4",
+		"typescript": "^7.0.2",
+		"vitest": "^5.0.1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/NombaOSS/nomba-node-sdk.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
