@@ -5,6 +5,9 @@ dist/
 
 coverage/
 
+*.db
+*.db-journal
+
 .env
 .env.*
 !.env.example

@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/banner-dark.svg">
+  <img alt="Nomba Node SDK" src=".github/assets/banner-light.svg" width="100%">
+</picture>
+
 # Nomba Node SDK
 
 A TypeScript/Node.js client for [Nomba's](https://nomba.com) payments and banking APIs — checkout, transfers, virtual accounts, direct debits, terminals, electricity, cable TV, betting, airtime and data, cross-border payouts and collections, webhooks, and account/transaction lookups — built for production use: automatic token management, safe retries, idempotent mutations, and cursor pagination.
