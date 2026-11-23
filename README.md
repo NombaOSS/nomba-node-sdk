@@ -7,7 +7,7 @@
 
 TypeScript/Node.js client for [Nomba's](https://nomba.com) payments and banking APIs.
 
-[![CI](https://github.com/kudi-inc/nomba-node-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/kudi-inc/nomba-node-sdk/actions/workflows/ci.yml)
+[![CI](https://github.com/NombaOSS/nomba-node-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/NombaOSS/nomba-node-sdk/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/@nomba/node-sdk)](https://www.npmjs.com/package/@nomba/node-sdk)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
