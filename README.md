@@ -1,21 +1,27 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/banner-dark.svg">
+  <img alt="Nomba Node SDK" src=".github/assets/banner-light.svg" width="100%">
+</picture>
+
 # Nomba Node SDK
 
-A TypeScript/Node.js client for [Nomba's](https://nomba.com) payments and banking APIs — checkout, transfers, virtual accounts, direct debits, terminals, electricity, cable TV, betting, airtime and data, cross-border payouts and collections, webhooks, and account/transaction lookups — built for production use: automatic token management, safe retries, idempotent mutations, and cursor pagination.
+TypeScript/Node.js client for [Nomba's](https://nomba.com) payments and banking APIs.
 
+[![CI](https://github.com/NombaOSS/nomba-node-sdk/actions/workflows/ci.yml/badge.svg)](https://github.com/NombaOSS/nomba-node-sdk/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/@nomba/node-sdk)](https://www.npmjs.com/package/@nomba/node-sdk)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Requirements
+- Checkout, transfers, virtual accounts, direct debits, terminals, electricity, cable TV, betting, airtime and data, cross-border payouts and collections, webhooks, and account/transaction lookups.
+- Built for production use: automatic token management, safe retries, idempotent mutations, and cursor pagination.
+- Requires Node.js **22** or newer (see `.nvmrc`) and a Nomba account with API credentials (`clientId`, `clientSecret`, `accountId`) from the [Nomba dashboard](https://nomba.com).
 
-- Node.js **22** or newer (see `.nvmrc`)
-- A Nomba account with API credentials (`clientId`, `clientSecret`, `accountId`) from the [Nomba dashboard](https://nomba.com)
-
-## Installation
+## Install
 
 ```bash
 npm install @nomba/node-sdk
 ```
 
-## Quick start
+## Quickstart
 
 ```ts
 import { Nomba } from "@nomba/node-sdk";
@@ -606,6 +612,12 @@ npm run build      # emit dist/
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contribution guide (Nomba-docs-first, tests required, Conventional Commits).
+
+## Links
+
+- [Nomba API documentation](https://developer.nomba.com)
+- [Contributing guide](CONTRIBUTING.md), [Security policy](SECURITY.md), [Releasing](RELEASING.md)
+- [Changelog](CHANGELOG.md)
 
 ## License
 
