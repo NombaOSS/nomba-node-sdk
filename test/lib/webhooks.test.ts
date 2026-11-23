@@ -33,8 +33,11 @@ test("accepts the documented webhook, as a raw body or parsed", () => {
 	expect(verifyWebhook(JSON.parse(body), signature, timestamp, secret)).toBe(
 		true,
 	);
+});
+
+test("rejects a signature that only differs in case (compared exact-case)", () => {
 	expect(verifyWebhook(body, signature.toUpperCase(), timestamp, secret)).toBe(
-		true,
+		false,
 	);
 });
 
