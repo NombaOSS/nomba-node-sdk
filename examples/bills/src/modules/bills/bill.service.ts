@@ -112,7 +112,7 @@ export const getBillDetails = async (billId: string) => {
 // There's no server-side "list this customer's past bills" endpoint either, so we scan
 // recent parent-account transactions and match on customerBillerId (the meter, smartcard,
 // betting account or phone number the payment went to).
-// ponytail: client-side scan capped at SCAN_LIMIT transactions, not indexed by customer.
+// limit: client-side scan capped at SCAN_LIMIT transactions, not indexed by customer.
 // Swap for a real lookup (e.g. your own DB of past payments) if this needs to be fast or complete.
 const SCAN_LIMIT = 500;
 

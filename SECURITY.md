@@ -2,7 +2,12 @@
 
 ## Reporting a vulnerability
 
-Email **security@nomba.com** with details and, if possible, steps to reproduce. Please do not open a public issue for security problems.
+Please don't open a public issue for a security problem. Report it privately in either of these ways:
+
+- **Private vulnerability report:** open this repository's **Security** tab and choose **Report a vulnerability**.
+- **Email:** security@nomba.com.
+
+Include the affected version, a description and, if possible, steps to reproduce. We aim to acknowledge reports within three working days.
 
 ## Supported versions
 
