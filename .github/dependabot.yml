@@ -24,19 +24,3 @@ updates:
         patterns: ["*"]
     commit-message:
       prefix: ci
-
-  - package-ecosystem: npm
-    directories:
-      - /examples/bills
-      - /examples/payments
-      - /examples/webhooks
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 7
-    groups:
-      examples:
-        patterns: ["*"]
-    commit-message:
-      prefix: chore
-      include: scope
