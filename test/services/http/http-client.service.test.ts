@@ -59,6 +59,12 @@ test("issueToken sends credentials with accountId header and no Authorization", 
 	});
 });
 
+test("every request refuses to follow a redirect, so the bearer token can't leak to another host", async () => {
+	fetchMock.mockResolvedValueOnce(ok(token(1)));
+	await new Nomba(opts).issueToken();
+	expect(call(0).init.redirect).toBe("error");
+});
+
 test("sandbox environment uses the sandbox base URL", async () => {
 	fetchMock.mockResolvedValueOnce(ok(token(1)));
 	await new Nomba({ ...opts, environment: "sandbox" }).issueToken();
@@ -219,6 +225,34 @@ test("a 200 with a non-00 code throws NombaError", async () => {
 		code: "01",
 		description: "Invalid credentials",
 	});
+});
+
+test("a failed issueToken never leaks the client secret in the thrown error", async () => {
+	fetchMock.mockResolvedValueOnce(
+		new Response(
+			JSON.stringify({ code: "01", description: "Invalid credentials" }),
+			{ status: 200 },
+		),
+	);
+	const err = await new Nomba(opts).issueToken().catch((e) => e);
+	expect(String(err)).not.toContain(opts.clientSecret);
+	expect(JSON.stringify(err)).not.toContain(opts.clientSecret);
+});
+
+test("a failed refreshToken never leaks the refresh token in the thrown error", async () => {
+	fetchMock
+		.mockResolvedValueOnce(ok(token(1)))
+		.mockResolvedValueOnce(
+			new Response(
+				JSON.stringify({ code: "01", description: "Invalid refresh token" }),
+				{ status: 200 },
+			),
+		);
+	const nomba = new Nomba(opts);
+	await nomba.issueToken();
+	const err = await nomba.refreshToken().catch((e) => e);
+	expect(String(err)).not.toContain(token(1).refresh_token);
+	expect(JSON.stringify(err)).not.toContain(token(1).refresh_token);
 });
 
 test("a non-JSON error response throws NombaError with the HTTP status", async () => {

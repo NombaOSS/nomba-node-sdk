@@ -67,7 +67,8 @@ function webhookSignature(
  * True when `signature` (the nomba-signature header) matches the event, signed with your dashboard's
  * webhook signature key and the nomba-timestamp header. `body` is the raw request body (string or Buffer) or the parsed event.
  * A missing or malformed signature or body returns false rather than throwing.
- * The docs compare signatures case-insensitively, so this does too.
+ * Compared exact-case: folding case before comparing would shrink the effective alphabet and weaken
+ * forgery resistance, and nothing backs case-insensitivity as real API behavior.
  */
 export function verifyWebhook(
 	body: string | Buffer | WebhookEvent,
@@ -86,9 +87,7 @@ export function verifyWebhook(
 		return false;
 	}
 	if (typeof event !== "object" || event === null) return false;
-	const expected = Buffer.from(
-		webhookSignature(event, secret, timestamp).toLowerCase(),
-	);
-	const given = Buffer.from(signature.toLowerCase());
+	const expected = Buffer.from(webhookSignature(event, secret, timestamp));
+	const given = Buffer.from(signature);
 	return expected.length === given.length && timingSafeEqual(expected, given);
 }

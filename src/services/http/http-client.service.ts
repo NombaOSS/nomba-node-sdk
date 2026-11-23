@@ -370,6 +370,8 @@ export class HttpClient implements IHttpClient {
 						...(bearer ? { Authorization: `Bearer ${bearer}` } : {}),
 					},
 					...(payload === undefined ? {} : { body: payload }),
+					// The bearer token must never follow a redirect to another host.
+					redirect: "error",
 					signal: AbortSignal.timeout(this.#options.timeoutMs ?? 30_000),
 				});
 				let json: Envelope<T> | null = null;
