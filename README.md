@@ -525,11 +525,15 @@ try {
 }
 ```
 
-- **`NombaError`** — a definite, non-2xx (or non-"00" body code) response. Safe to treat as "did not happen."
-- **`TokenError`** — getting or renewing the access token failed, so the request was never sent and nothing happened on Nomba's side. `err.cause` holds the underlying error. It is never reported as a pending payment.
-- **`IdempotencyKeyAbsentError`** — a money-moving operation was attempted without a valid idempotency key. The SDK refuses to generate random keys for these operations to prevent double disbursement. Provides `err.field` (the required field name, e.g. `"merchantTxRef"` or `"idempotencyKey"`) and `err.path` (the endpoint).
-- **`UnconfirmedOutcomeError`** — a money-moving call got a pending result (documented or undocumented) without an `onPending` closure to handle it. Also thrown when the `code` or `data.status` isn't documented for that endpoint (`err.reason` says which). Treat it as pending: wait for the webhook or requery. It carries `code`, `status`, `data` and `idempotencyKey`.
-- **`OutcomeUnknownError`** — thrown only for mutating calls (transfers, checkout orders, etc.) after a failure that doesn't reveal whether the operation was processed. **Never retry by sending the same request again** — check the transaction's real status first (via `requery`, or your webhook), and only resubmit with the same `idempotencyKey` once you know it wasn't processed.
+| Class                       | When                                                                                                                                                                                                                                                                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NombaError`                | A definite, non-2xx (or non-"00" body code) response. Safe to treat as "did not happen."                                                                                                                                                                                 |
+| `TokenError`                | Getting or renewing the access token failed, so the request was never sent and nothing happened on Nomba's side. `err.cause` holds the underlying error. It is never reported as a pending payment.                                                                    |
+| `IdempotencyKeyAbsentError` | A money-moving operation was attempted without a valid idempotency key. The SDK refuses to generate random keys for these operations to prevent double disbursement. `err.field` names the required field (e.g. `"merchantTxRef"` or `"idempotencyKey"`), `err.path` the endpoint. |
+| `UnconfirmedOutcomeError`   | A money-moving call got a pending result (documented or undocumented) without an `onPending` closure to handle it, or an undocumented `code`/`data.status` (`err.reason` says which). Treat it as pending: wait for the webhook or requery. Carries `code`, `status`, `data` and `idempotencyKey`. |
+| `OutcomeUnknownError`       | A mutating call failed without revealing whether it was processed. **Never retry by sending the same request again** — check the real status first (via `requery`, or your webhook), and only resubmit with the same `idempotencyKey` once you know it wasn't processed. |
+
+Errors never contain your client secret, access token, refresh token or the `Authorization` header.
 
 ## Idempotency
 
