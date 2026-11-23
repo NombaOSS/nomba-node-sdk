@@ -22,6 +22,7 @@
 		"prebuild": "node scripts/generate-sdk-version.cjs",
 		"build": "tsc -p tsconfig.build.json",
 		"lint": "biome check .",
+		"lint:architecture": "node scripts/check-architecture.cjs",
 		"pretest": "node scripts/generate-sdk-version.cjs",
 		"test": "vitest run",
 		"pretypecheck": "node scripts/generate-sdk-version.cjs",

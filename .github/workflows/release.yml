@@ -44,9 +44,33 @@ jobs:
       - if: steps.next.outputs.version == ''
         run: echo "::notice::No feat, fix, perf or breaking change since the last release. Nothing to publish."
 
-  publish:
+  build:
     needs: version
     if: needs.version.outputs.version != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          package-manager-cache: false # no shared cache in a release build
+      - run: npm ci --ignore-scripts
+      - run: npm version "$VERSION" --no-git-tag-version --ignore-scripts
+      - run: npm run build
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dist
+          path: dist/
+          retention-days: 1
+
+  publish:
+    needs: [version, build]
     runs-on: ubuntu-latest
     environment: npm
     permissions:
@@ -60,13 +84,22 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version-file: .nvmrc
+          node-version: 24.22.2
           registry-url: https://registry.npmjs.org
           package-manager-cache: false # no shared cache in a job that can publish
-      - run: npm install -g npm@11.21.0 # npm stage needs npm >= 11.19.1
-      - run: npm ci --ignore-scripts
-      - run: npm version "$VERSION" --no-git-tag-version
-      - run: npm run build
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - name: Check npm supports npm stage
+        run: |
+          node -e '
+            const [maj, min, patch] = process.argv[1].split(".").map(Number);
+            if (maj < 11 || (maj === 11 && (min < 19 || (min === 19 && patch < 1)))) {
+              console.error("npm " + process.argv[1] + " is older than 11.19.1, which npm stage needs");
+              process.exit(1);
+            }' "$(npm --version)"
+      - run: npm version "$VERSION" --no-git-tag-version --ignore-scripts
       - name: Stage on npm
         # npm view only sees approved versions. If a run staged but failed to
         # tag, re-staging fails: create the v$VERSION release on this commit
@@ -75,7 +108,7 @@ jobs:
         run: |
           published=$(npm view "@nomba/node-sdk@$VERSION" gitHead 2>/dev/null || true)
           if [ -z "$published" ]; then
-            npm stage publish
+            npm stage publish --ignore-scripts
             echo "::notice::@nomba/node-sdk@$VERSION is staged. Approve it with: npm stage list @nomba/node-sdk, then npm stage approve <stage-id>"
           elif [ "$published" = "$GITHUB_SHA" ]; then
             echo "::notice::@nomba/node-sdk@$VERSION is already on npm from this commit."
@@ -84,10 +117,7 @@ jobs:
             exit 1
           fi
         env:
-          # Only for the first publish: npm can't trust this workflow until the
-          # package exists. Delete the NPM_TOKEN secret once trusted publishing
-          # is set up; npm then publishes with OIDC.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: ${{ !github.event.repository.private }}
       - name: Tag and create GitHub Release
         run: gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --generate-notes
         env:

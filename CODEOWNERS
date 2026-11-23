@@ -5,3 +5,14 @@ CODEOWNERS @NombaOSS/maintainers
 .gitignore @NombaOSS/maintainers
 .gitattributes @NombaOSS/maintainers
 /scripts/operations/ @NombaOSS/maintainers
+
+/src/services/http/ @NombaOSS/node-sdk-maintainers
+/src/lib/errors.ts @NombaOSS/node-sdk-maintainers
+/src/lib/outcome.ts @NombaOSS/node-sdk-maintainers
+/src/lib/webhooks.ts @NombaOSS/node-sdk-maintainers
+/src/lib/util.ts @NombaOSS/node-sdk-maintainers
+/src/lib/token-store.ts @NombaOSS/node-sdk-maintainers
+/src/interfaces/http/ @NombaOSS/node-sdk-maintainers
+/scripts/check-architecture.cjs @NombaOSS/node-sdk-maintainers
+CLAUDE.md @NombaOSS/node-sdk-maintainers
+CONTRIBUTING.md @NombaOSS/node-sdk-maintainers
