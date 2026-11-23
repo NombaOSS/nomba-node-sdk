@@ -48,6 +48,8 @@ console.log(order.checkoutLink); // send the customer here to pay
 
 The SDK issues an access token on first use and refreshes it automatically before it expires — no manual token handling required.
 
+Full, runnable example apps are in [`examples/`](examples).
+
 ## Configuration
 
 ```ts
@@ -616,6 +618,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full contribution guide (Nomba-do
 ## Links
 
 - [Nomba API documentation](https://developer.nomba.com)
+- [Example apps](examples)
 - [Contributing guide](CONTRIBUTING.md), [Security policy](SECURITY.md), [Releasing](RELEASING.md)
 - [Changelog](CHANGELOG.md)
 
