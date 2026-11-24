@@ -118,6 +118,7 @@ jobs:
           fi
         env:
           NPM_CONFIG_PROVENANCE: ${{ !github.event.repository.private }}
+          NPM_CONFIG_LOGLEVEL: verbose
       - name: Tag and create GitHub Release
         run: gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" --generate-notes
         env:
