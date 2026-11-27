@@ -22,6 +22,8 @@ import type {
 	CreatedVirtualAccount,
 	CreateVirtualAccountParams,
 	FilterVirtualAccountsParams,
+	SimulateInflowParams,
+	SimulateInflowResult,
 	UpdateVirtualAccountParams,
 	VirtualAccount,
 	VirtualAccountList,
@@ -136,6 +138,27 @@ export class VirtualAccountsService implements IVirtualAccountsService {
 	): AsyncGenerator<VirtualAccount> {
 		return paginate((cursor) =>
 			this.list(filter, cursor ? { ...page, cursor } : page),
+		);
+	}
+
+	/**
+	 * `POST /v1/accounts/virtual/{identifier}/simulate-inflow`. Sandbox only. Simulates a bank
+	 * transfer into a `SIMULATED` virtual account, applying the same checks as a real inflow
+	 * (expiry, and sender name when `restrictInflowToAccountName` is set) and firing the matching
+	 * webhook. A rejected inflow still resolves with HTTP 200 and `status: "REJECTED"`.
+	 * @param identifier The `accountRef` or the account number of the `SIMULATED` virtual account.
+	 * @param params The simulated sender and amount.
+	 * @returns The simulated inflow's outcome.
+	 * @throws {NombaError} The call failed, e.g. `identifier` names a `LIVE` account.
+	 */
+	async simulateInflow(
+		identifier: string,
+		params: SimulateInflowParams,
+	): Promise<SimulateInflowResult> {
+		return this.http.request(
+			"POST",
+			`/v1/accounts/virtual/${pathId(identifier)}/simulate-inflow`,
+			{ body: params },
 		);
 	}
 }

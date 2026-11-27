@@ -74,3 +74,27 @@ export type VirtualAccountList = {
 	/** Pass as `cursor` to get the next page. Empty when there are no more pages. */
 	cursor: string;
 };
+
+export type SimulateInflowParams = {
+	/** Naira amount to send, e.g. "5000.00". Must be greater than zero; simulated accounts accept any amount. */
+	amount: string;
+	/** Checked against the account name when `restrictInflowToAccountName` is true. Word order is ignored. */
+	senderAccountName: string;
+	senderAccountNumber?: string;
+	senderBankCode?: string;
+	narration?: string;
+};
+
+export type SimulateInflowResult = {
+	status: "SUCCESS" | "REJECTED";
+	/** NIP response code: "00" accepted, "07" account expired, "08" sender name mismatch. */
+	responseCode: string;
+	/** Only present when `status` is "REJECTED". */
+	reason?: "EXPIRED" | "NAME_MISMATCH";
+	/** Only present when `status` is "SUCCESS". Use with Transaction requery. */
+	transactionRef?: string;
+	sessionId: string;
+	accountNumber: string;
+	accountRef: string;
+	amount: string;
+};
