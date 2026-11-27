@@ -1,6 +1,7 @@
 import { describe, expectTypeOf, test } from "vitest";
 import type {
 	CreatedVirtualAccount,
+	SimulateInflowResult,
 	VirtualAccount,
 	VirtualAccountList,
 } from "../../../../src/index.js";
@@ -65,5 +66,11 @@ describe("IVirtualAccountsService return types match the documented response sha
 		expectTypeOf<IVirtualAccountsService["iterate"]>().returns.toEqualTypeOf<
 			AsyncGenerator<VirtualAccount>
 		>();
+	});
+
+	test("simulateInflow", () => {
+		expectTypeOf<
+			IVirtualAccountsService["simulateInflow"]
+		>().returns.resolves.toEqualTypeOf<SimulateInflowResult>();
 	});
 });

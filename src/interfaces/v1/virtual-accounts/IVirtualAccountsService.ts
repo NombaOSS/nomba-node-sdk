@@ -8,6 +8,8 @@ import type {
 	CreatedVirtualAccount,
 	CreateVirtualAccountParams,
 	FilterVirtualAccountsParams,
+	SimulateInflowParams,
+	SimulateInflowResult,
 	UpdateVirtualAccountParams,
 	VirtualAccount,
 	VirtualAccountList,
@@ -83,4 +85,15 @@ export interface IVirtualAccountsService {
 		filter?: FilterVirtualAccountsParams,
 		page?: PageParams,
 	): AsyncGenerator<VirtualAccount>;
+	/**
+	 * `POST /v1/accounts/virtual/{identifier}/simulate-inflow`. Sandbox only.
+	 * @param identifier The accountRef or account number of a `SIMULATED` virtual account.
+	 * @param params The simulated sender and amount.
+	 * @returns The simulated inflow's outcome.
+	 * @throws {NombaError} The request was rejected, e.g. `identifier` names a `LIVE` account.
+	 */
+	simulateInflow(
+		identifier: string,
+		params: SimulateInflowParams,
+	): Promise<SimulateInflowResult>;
 }

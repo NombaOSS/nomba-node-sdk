@@ -167,6 +167,41 @@ test("an API error surfaces as NombaError", async () => {
 	});
 });
 
+test("simulateInflow posts the params and returns the outcome", async () => {
+	const result = {
+		status: "SUCCESS",
+		responseCode: "00",
+		transactionRef: "SANDBOX-VA-92eb15fb-56c3-4678-8dd2-faed8529f236",
+		sessionId: "999999261113102524068408167198",
+		accountNumber: "0216409640",
+		accountRef: "sandbox-va-001",
+		amount: "5000.00",
+	};
+	fetchMock.mockResolvedValueOnce(ok(result));
+	const body = { amount: "5000.00", senderAccountName: "Scorsese Daniel" };
+	expect(
+		await nomba.virtualAccounts.simulateInflow("sandbox-va-001", body),
+	).toEqual(result);
+	expect(apiCall()).toMatchObject({
+		url: "https://api.nomba.com/v1/accounts/virtual/sandbox-va-001/simulate-inflow",
+		init: { method: "POST" },
+		body,
+	});
+});
+
+test.each(["", ".", ".."])(
+	"simulateInflow rejects identifiers that would change the endpoint: %j",
+	async (bad) => {
+		await expect(
+			nomba.virtualAccounts.simulateInflow(bad, {
+				amount: "100",
+				senderAccountName: "x",
+			}),
+		).rejects.toThrow("Invalid id");
+		expect(fetchMock).not.toHaveBeenCalled();
+	},
+);
+
 test("iterate starts from a given cursor, then follows the API's cursors", async () => {
 	fetchMock
 		.mockResolvedValueOnce(ok({ results: [{ accountRef: "a" }], cursor: "c2" }))
